@@ -6,7 +6,7 @@ My router has no support for custom protocols.
 Configure it by creating a .env file. (using environment variables also work)
 ```dotenv
 GNUDIP_PASS=your GnuDIP password (currently ignores username)
-TARGET_URL=the URL you want to ping
+TARGET_URL=the URL you want to ping (use {DOMAIN} for the DDNS domain, and {ADDRESS} for the IP)
 IP=the IP you want to bind to
 PORT=the port you want to bind to
 ```
