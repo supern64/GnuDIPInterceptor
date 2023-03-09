@@ -30,7 +30,7 @@ let key = await nodeCrypto.subtle.generateKey(
 
   
 app.get("/", (req, res) => {
-    res.redirect("https://www.youtube.com/watch?v=cGw-8FrRT1E");
+    res.redirect("https://www.youtube.com/watch?v=cGw-8FrRT1E"); // COCONUT MALLED
 });
 
 app.get("/gnudip/cgi-bin/gdipupdt.cgi", async (req, res) => {
@@ -90,7 +90,7 @@ app.get("/gnudip/cgi-bin/gdipupdt.cgi", async (req, res) => {
                 }
                 response = await updateExternal(domain, req.query.addr as string);
                 text = await response.text();
-                if (response.status != 200 || (text.toLowerCase().includes("error") && !text.toLowerCase().includes("has not changed"))) {
+                if (response.status != 200 || (text.toLowerCase().includes("error") && !text.toLowerCase().includes("has not changed"))) { // exceptions for afraid.org v1
                     console.log("[UPDATE] External update failed. Returned " + text.trim());
                     res.send(responseTemplate(1, null, "External Update Failed - " + text.trim()));
                 } else {
@@ -120,7 +120,7 @@ app.listen(port, ip, () => {
     console.log(`Listening on port ${ip}:${port}`);
 });
 
-// send shit
+// send stuff
 async function updateExternal(domain: string, ip: string) : Promise<Response> {
     const replacements = {"{DOMAIN}": domain, "{ADDRESS}": ip};
     const requestUrl = process.env.TARGET_URL.replace(/{\w+}/g, (a) => {return replacements[a] || a});
