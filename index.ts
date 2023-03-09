@@ -117,7 +117,7 @@ app.get("/gnudip/cgi-bin/gdipupdt.cgi", async (req, res) => {
 });
 
 app.listen(port, ip, () => {
-    console.log(`Listening on port ${ip}:${port}`);
+    console.log(`Listening at ${ip}:${port}.`);
 });
 
 // send stuff
