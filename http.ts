@@ -1,12 +1,12 @@
 /*
     GnuDIPInterceptor
     A fake GnuDIP server, for when your router is terrible.
+    Implements the HTTP Protocol.
     SuperN64 2023-03-09
 */
 
 import express from 'express';
-import nodeCrypto from 'node:crypto';
-import crypto from 'crypto'; // yes ik im using 2 crypto libs but idc
+import crypto from 'crypto';
 import md5 from 'md5';
 import { config } from 'dotenv';
 config();
@@ -16,17 +16,9 @@ const ip = process.env.IP || "0.0.0.0";
 const port = parseInt(process.env.PORT) || 8080;
 
 const encoder = new TextEncoder();
-const decoder = new TextDecoder();
 
 console.log("Generating signing key...")
-let key = await nodeCrypto.subtle.generateKey(
-    {
-      name: "HMAC",
-      hash: { name: "SHA-512" },
-    },
-    true,
-    ["sign", "verify"]
-);
+const key = crypto.randomBytes(64);
 
   
 app.get("/", (req, res) => {
@@ -37,8 +29,8 @@ app.get("/gnudip/cgi-bin/gdipupdt.cgi", async (req, res) => {
     if (Object.keys(req.query).length == 0) { // requesting salt
         const salt = generateSalt();
         const time = Date.now();
-        const signature = await nodeCrypto.subtle.sign({name: "HMAC", hash: {name: "SHA-512"}}, key, encoder.encode(`${salt}.${time}`));
-        res.send(saltGeneratedTemplate(salt, time, buf2hex(signature)));
+        const hmac = crypto.createHmac("sha512", key).update(`${salt}.${time}`);
+        res.send(saltGeneratedTemplate(salt, time, hmac.digest("base64")));
     } else {
         const salt = req.query.salt as string;
         const time = parseInt(req.query.time as string);
@@ -53,7 +45,7 @@ app.get("/gnudip/cgi-bin/gdipupdt.cgi", async (req, res) => {
             res.send(responseTemplate(1, null, "Salt Expired"))
             return;
         }
-        const saltValid = await nodeCrypto.subtle.verify({name: "HMAC", hash: {name: "SHA-512"}}, key, hex2buf(signature), encoder.encode(`${salt}.${time}`));
+        const saltValid = crypto.timingSafeEqual(crypto.createHmac("sha512", key).update(`${salt}.${time}`).digest(), Buffer.from(signature, "base64"))
         if (!saltValid) {
             res.send(responseTemplate(1, null, "Signature Invalid"));
             return;
@@ -117,7 +109,7 @@ app.get("/gnudip/cgi-bin/gdipupdt.cgi", async (req, res) => {
 });
 
 app.listen(port, ip, () => {
-    console.log(`Listening at ${ip}:${port}.`);
+    console.log(`[SERVER] Listening at ${ip}:${port}.`);
 });
 
 // send stuff
@@ -167,15 +159,4 @@ function responseTemplate(responseCode: number, address?: string, reason?: strin
         (address ? `\n<meta name="addr" content="${address}">` : ""),
         (responseCode !== 1 ? "Update Successful" : "Error: " + reason)
     );
-}
-
-// hex utils
-function buf2hex(buffer) { // buffer is an ArrayBuffer
-    return [...new Uint8Array(buffer)]
-        .map(x => x.toString(16).padStart(2, '0'))
-        .join('');
-}
-
-function hex2buf(hex) {
-    return new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16))).buffer
 }

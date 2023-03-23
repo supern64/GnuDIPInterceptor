@@ -6,6 +6,7 @@
       "outDir": "./build"
     },
     "files": [
-        "index.ts"
+        "http.ts",
+        "tcp.ts"
     ]
 }

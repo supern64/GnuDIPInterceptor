@@ -5,7 +5,10 @@
   "description": "GnuDIP interceptor (to turn it into something else)",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node --no-warnings ./build/index.js"
+    "start": "tsc && node --no-warnings ./build/http.js",
+    "start-http": "tsc && node --no-warnings ./build/http.js",
+    "start-tcp": "tsc && node --no-warnings ./build/tcp.js",
+    "build": "tsc"
   },
   "author": "supern64",
   "license": "MIT",
