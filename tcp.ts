@@ -69,7 +69,7 @@ server.on("connection", (sock) => {
                 }
                 break;
             case "1": // go offline (NOOP)
-                dataSock.write("2");
+                dataSock.write("2\n");
                 break;
             case "2": // set detected address
                 response = await updateExternal(params[2], dataSock.remoteAddress);
